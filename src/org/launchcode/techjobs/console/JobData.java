@@ -7,9 +7,11 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by LaunchCode
@@ -62,7 +64,7 @@ public class JobData {
      * with "Enterprise Holdings, Inc".
      *
      * @param column   Column that should be searched.
-     * @param value Value of teh field to search for
+     * @param value Value of the field to search for
      * @return List of all jobs matching the criteria
      */
     public static ArrayList<HashMap<String, String>> findByColumnAndValue(String column, String value) {
@@ -72,11 +74,15 @@ public class JobData {
 
         ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
 
+        ArrayList<HashMap<String, String>> noDuplicates = new ArrayList<>();
+
         for (HashMap<String, String> row : allJobs) {
 
             String aValue = row.get(column);
 
-            if (aValue.contains(value)) {
+            String makeLower = aValue.toLowerCase();
+
+            if (makeLower.contains(value.toLowerCase())) {
                 jobs.add(row);
             }
         }
@@ -109,6 +115,7 @@ public class JobData {
             for (CSVRecord record : records) {
                 HashMap<String, String> newJob = new HashMap<>();
 
+
                 for (String headerLabel : headers) {
                     newJob.put(headerLabel, record.get(headerLabel));
                 }
@@ -123,6 +130,30 @@ public class JobData {
             System.out.println("Failed to load job data");
             e.printStackTrace();
         }
+    }
+
+    public static ArrayList<HashMap<String, String>> findByValue(String searchValue) {
+        loadData();
+
+        ArrayList<HashMap<String, String>> searchValResults = new ArrayList<>();
+
+        ArrayList<HashMap<String, String>> noDuplicates = new ArrayList<>();
+
+        for (HashMap<String, String> jobHashMap : allJobs) {
+
+            for(String mapEntry : jobHashMap.values()) {
+
+                String makeLower = mapEntry.toLowerCase();
+
+                if (makeLower.contains(searchValue.toLowerCase())) {
+                    searchValResults.add(jobHashMap);
+                    if(!noDuplicates.contains(searchValResults)){
+                        noDuplicates.add(jobHashMap);
+                    }
+                }
+            }
+        }
+        return searchValResults;
     }
 
 }
